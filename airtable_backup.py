@@ -3,6 +3,7 @@ import requests
 import json
 from datetime import datetime
 
+# Lade API-Key und Base-ID aus Umgebungsvariablen
 API_KEY = os.getenv("AIRTABLE_API_KEY")
 BASE_ID = os.getenv("AIRTABLE_BASE_ID")
 TABLES = [
@@ -18,17 +19,16 @@ if not API_KEY or not BASE_ID:
 
 headers = {"Authorization": f"Bearer {API_KEY}"}
 
-backup_folder = "backups"
-os.makedirs(backup_folder, exist_ok=True)
+def backup_table(table_name):
+    url = f"https://api.airtable.com/v0/{BASE_ID}/{table_name}"
+    response = requests.get(url, headers=headers)
+    response.raise_for_status()
+    data = response.json()
+    filename = f"{table_name}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
+    with open(filename, "w", encoding="utf-8") as f:
+        json.dump(data, f, ensure_ascii=False, indent=2)
+    print(f"✅ Backup erstellt: {filename}")
 
-for table in TABLES:
-    url = f"https://api.airtable.com/v0/{BASE_ID}/{table}"
-    r = requests.get(url, headers=headers)
-    if r.status_code == 200:
-        data = r.json()
-        filename = f"{backup_folder}/{table}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
-        with open(filename, "w", encoding="utf-8") as f:
-            json.dump(data, f, ensure_ascii=False, indent=2)
-        print(f"✅ Backup für '{table}' gespeichert: {filename}")
-    else:
-        print(f"❌ Fehler beim Abrufen von '{table}': {r.status_code} - {r.text}")
+if __name__ == "__main__":
+    for table in TABLES:
+        backup_table(table)
