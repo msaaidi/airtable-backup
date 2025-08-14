@@ -1,22 +1,25 @@
 name: Airtable Backup
 
 on:
-  workflow_dispatch: # Manuelles Starten möglich
+  workflow_dispatch:
 
 jobs:
   backup:
     runs-on: ubuntu-latest
     steps:
-      - name: Repository auschecken
+      - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Python installieren
+      - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: "3.x"
 
-      - name: Abhängigkeiten installieren
+      - name: Install dependencies
         run: pip install requests
 
-      - name: Airtable Backup ausführen
+      - name: Run Airtable Backup
+        env:
+          AIRTABLE_API_KEY: ${{ secrets.AIRTABLE_API_KEY }}
+          AIRTABLE_BASE_ID: ${{ secrets.AIRTABLE_BASE_ID }}
         run: python airtable_backup.py
