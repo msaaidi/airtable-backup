@@ -24,5 +24,4 @@ jobs:
           pip install pandas requests
 
       - name: Run Airtable Backup
-        working-directory: ${{ github.workspace }}
         run: python airtable_backup.py
